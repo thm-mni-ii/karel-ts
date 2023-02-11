@@ -188,8 +188,7 @@ class Karel {
     };
 
     for (let i = 0; i < beeperCount; i += 1) {
-      let x = this.state.world[2 + i] ?? {};
-      this.state.world[2 + i] = x;
+      this.state.world[2 + i] = this.state.world[2 + i] ?? {};
       this.state.world[2 + i][0] = "beeper";
     }
 
@@ -229,8 +228,8 @@ class Karel {
   }
 
   public loadLevel07(mode?: "fixed-extreme" | "fixed"): void {
-    var height:number;
-    var width: number;
+    let height: number;
+    let width: number;
 
     if (mode == "fixed-extreme") {
       height = 20;
@@ -377,11 +376,7 @@ class Karel {
   public isOnBeeper(): boolean {
     this.detectInfiniteLoop();
 
-    if (this.getWorldElementAt(this.state, this.state.position) == "beeper") {
-      return true;
-    } else {
-      return false;
-    }
+    return this.getWorldElementAt(this.state, this.state.position) == "beeper";
   }
 
   public getBeeperCount(): number {
