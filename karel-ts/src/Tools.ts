@@ -1,69 +1,14 @@
-// http://mormegil.wz.cz/prog/karel/prog_doc.htm
+import { State } from "./State";
+import { Vector } from "./Vector";
+import { WorldElement } from "./WorldElement";
+import { Direction } from "./Direction";
 
-type World = WorldElement[][];
-
-type Position = [number, number];
-
-enum State {
-  unloaded = "world_not_loaded",
-
-  on = "world_loaded",
-
-  off = "karel_off",
-}
-
-enum Direction {
-  north,
-
-  east,
-
-  south,
-
-  west
-}
-
-enum WorldElement {
-  none = 0,
-
-  wall = 2,
-
-  beeper = 1
-}
-
-class Karel {
-  private world: World = [];
-
-  /*
-   * 2D Vector (x, y)
-   */
-  private position: Position = [0, 0];
-
-  private direction: Direction = Direction.east;
-
-  private beeperCount: number = 0;
-
-  private state: State = State.unloaded;
-
-  loadLevel1() {
-    this.assert(State.unloaded);
-    this.world = [];
-    this.world.push([0, 0, 0, 0, 0]);
-    this.world.push([0, 0, 0, 0, 0]);
-    this.world.push([0, 1, 0, 2, 2]);
-    this.position = [0, 2];
-    this.state = State.on;
-    this.render();
-    console.log("Did load level 1");
+export class Tools {
+  static getWorldElementAt(state: State, position: Vector) {
+    return (state.world[position[0]] ?? {})[position[1]] ?? WorldElement.none;
   }
 
-  private assert(state: State) {
-    if (this.state != state) {
-      throw new Error(`Assertion failed. Target: ${state}. Actual: ${this.state}`);
-    }
-  }
-
-  private render() {
-    this.assert(State.on);
+  static render(state: State) {
     const tileSize = 70;
 
     const bodies = document.getElementsByTagName("body");
@@ -76,13 +21,13 @@ class Karel {
     worldDiv.style.position = "absolute";
     worldDiv.style.top = `${tileSize}px`;
     worldDiv.style.left = `${tileSize}px`;
-    worldDiv.style.width = `${(this.world[0]?.length ?? 0) * tileSize}px`;
-    worldDiv.style.height = `${(this.world.length ?? 0) * tileSize}px`;
+    worldDiv.style.width = `${state.worldSize[0] * tileSize}px`;
+    worldDiv.style.height = `${state.worldSize[1] * tileSize}px`;
     worldDiv.style.border = "2px solid black";
     worldDiv.style.boxSizing = "content-box";
     body.replaceChildren(worldDiv);
 
-    for (let y = 0; y < this.world.length; y += 1) {
+    for (let y = 0; y < state.worldSize[1]; y += 1) {
       const yMarker = document.createElement("div");
       yMarker.style.position = "absolute";
       yMarker.style.width = `${tileSize}px`;
@@ -94,8 +39,8 @@ class Karel {
       yMarker.innerHTML = `${y}`;
       body.appendChild(yMarker);
 
-      for (let x = 0; x < this.world[y].length; x += 1) {
-        const tile = this.world[y][x];
+      for (let x = 0; x < state.worldSize[0]; x += 1) {
+        const tile = Tools.getWorldElementAt(state, [x, y]);
 
         if (y == 0) {
           const xMarker = document.createElement("div");
@@ -148,7 +93,7 @@ class Karel {
 
     const karel = document.createElement("div");
     karel.innerHTML = "🤖<br>"
-    switch (this.direction) {
+    switch (state.direction) {
       case Direction.east: karel.innerHTML += "➡️"; break;
       case Direction.south: karel.innerHTML += "⬇️️"; break;
       case Direction.west: karel.innerHTML += "⬅️️"; break;
@@ -157,55 +102,22 @@ class Karel {
     karel.style.position = "absolute";
     karel.style.width = `${tileSize}px`;
     karel.style.height = `${tileSize}px`;
-    karel.style.top = `${tileSize * this.position[1]}px`;
-    karel.style.left = `${tileSize * this.position[0]}px`;
-    karel.style.border = "2px solid black";
+    karel.style.top = `${tileSize * state.position[1]}px`;
+    karel.style.left = `${tileSize * state.position[0]}px`;
     karel.style.boxSizing = "border-box";
     karel.style.fontSize = `${tileSize / 2}px`;
     karel.style.lineHeight = "1";
     karel.style.textAlign = "center";
-    karel.style.backgroundColor = "lightblue";
+    // karel.style.border = "2px solid black";
+    // karel.style.backgroundColor = "lightblue";
     worldDiv.appendChild(karel);
-  }
 
-  move() {
-    this.assert(State.on);
-
-    let nextPosition = this.position;
-    switch (this.direction) {
-      case Direction.east: nextPosition[0] += 1; break;
-      case Direction.south: nextPosition[1] += 1; break;
-      case Direction.west: nextPosition[0] += -1; break;
-      case Direction.north: nextPosition[1] += -1; break;
-    }
-
-    if (
-      nextPosition[0] < 0 ||
-      nextPosition[1] < 0 ||
-      nextPosition[1] >= this.world.length ||
-      nextPosition[0] >= this.world[nextPosition[1]].length
-    ) {
-      throw new Error(`Unable to move outside of world.`);
-    }
-
-    if (this.world[nextPosition[1]][nextPosition[0]] == WorldElement.wall) {
-      throw new Error("Unable to move into wall.")
-    }
-
-    this.position = nextPosition;
-    this.render();
-    console.log("Did move forward.");
-  }
-
-  turnLeft() {
-    this.assert(State.on);
-    switch (this.direction) {
-      case Direction.east: this.direction = Direction.north; break;
-      case Direction.north: this.direction = Direction.west; break;
-      case Direction.west: this.direction = Direction.south; break;
-      case Direction.south: this.direction = Direction.east; break;
-    }
-    this.render();
-    console.log("Did turn left.");
+    const beeperCounter = document.createElement("div");
+    beeperCounter.innerText = `Beepers: ${state.beeperCount}`;
+    beeperCounter.style.position = "absolute";
+    beeperCounter.style.top = `${tileSize * (state.worldSize[1] + 1.1)}px`;
+    beeperCounter.style.left = `${tileSize}px`;
+    beeperCounter.style.width = `${state.worldSize[0] * tileSize}px`;
+    body.appendChild(beeperCounter)
   }
 }
