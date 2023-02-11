@@ -1,6 +1,0 @@
-.idea/
-*.js
-*.map.js
-node_modules/
-dist/
-out-tsc/
