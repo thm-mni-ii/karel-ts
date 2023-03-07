@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const karel = new Karel();
   karel.loadLevel01();
   karel.move();
+  karel.move();
   karel.pickBeeper();
   karel.turnLeft();
   karel.move();

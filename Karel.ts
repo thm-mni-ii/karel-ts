@@ -1,17 +1,17 @@
 type State = {
-  world: World;
-  worldSize: Vector;
-  position: Vector;
-  direction: Direction;
-  beeperCount: number;
-  levelName: string;
+  readonly world: World;
+  readonly worldSize: Vector;
+  readonly position: Vector;
+  readonly direction: Direction;
+  readonly beeperCount: number;
+  readonly levelName: string;
 };
 
 type Direction = "north" | "east" | "south" | "west";
 
-type Vector = [number, number];
+type Vector = Readonly<[number, number]>;
 
-type World = Record<number, Record<number, WorldElement | null> | null>;
+type World = Record<number, Readonly<Record<number, Readonly<WorldElement | null>> | null>>;
 
 type WorldElement  = "none" | "wall" | "beeper";
 
@@ -21,23 +21,31 @@ class Karel {
   private state: State;
 
   public constructor() {
+    this.state = {
+      worldSize: [0, 0],
+      world: {},
+      position: [0, 0],
+      direction: "east",
+      beeperCount: 0,
+      levelName: "",
+    }
     this.callCount = 0;
   }
 
   public loadLevel01(): void {
     this.state = {
-      worldSize: [4, 3],
+      worldSize: [5, 3],
       world: {
-        1: { 2: "beeper" },
-        2: { 2: "wall" },
-        3: { 2: "wall" }
+        2: { 2: "beeper" },
+        3: { 2: "wall" },
+        4: { 2: "wall" }
       },
       position: [0, 2],
       direction: "east",
       beeperCount: 0,
       levelName: "Level 01",
     }
-    this.render(this.state);
+    Karel.render(this.state);
   }
 
   public loadLevel02(): void {
@@ -95,75 +103,67 @@ class Karel {
       beeperCount: 0,
       levelName: "Level 02",
     }
-    this.render(this.state);
+    Karel.render(this.state);
   }
 
   public loadLevel03(mode?: "fixed"): void {
+    let world: World = {};
+
+    if (Karel.random(0, 1) == 0 || mode == "fixed") {
+      world = Karel.bySettingWorldElementAt(world, [2, 1], "beeper");
+    }
+    if (Karel.random(0, 1) == 0 || mode == "fixed") {
+      world = Karel.bySettingWorldElementAt(world, [3, 1], "beeper");
+    }
+
     this.state = {
       worldSize: [6, 3],
-      world: {
-        0: {
-        },
-        1: {
-        },
-        2: {
-        },
-        3: {
-        },
-        4: {
-        },
-      },
+      world: world,
       position: [0, 1],
       direction: "east",
       beeperCount: 0,
       levelName: "Level 03",
     };
 
-    if (this.random(0, 1) == 0 || mode == "fixed") {
-      this.state.world[2][1] = "beeper";
-    }
-    if (this.random(0, 1) == 0 || mode == "fixed") {
-      this.state.world[3][1] = "beeper";
-    }
-
-    this.render(this.state);
+    Karel.render(this.state);
   }
 
   public loadLevel04(mode?: "fixed-a" | "fixed-b"): void {
+    let world: World = {
+      0: {
+        0: "wall",
+        2: "wall",
+      },
+      2: {
+        1: "wall",
+      },
+      3: {
+      },
+      4: {
+        0: "wall",
+        2: "wall",
+      },
+    }
+
+    const r = Karel.random(0, 1);
+    if (mode == null && r == 0 || mode == "fixed-a") {
+      world = Karel.bySettingWorldElementAt(world, [2, 0], "wall");
+      world = Karel.bySettingWorldElementAt(world, [2, 2], "beeper");
+    } else {
+      world = Karel.bySettingWorldElementAt(world, [2, 0], "beeper");
+      world = Karel.bySettingWorldElementAt(world, [2, 2], "wall");
+    }
+
     this.state = {
       worldSize: [5, 3],
-      world: {
-        0: {
-          0: "wall",
-          2: "wall",
-        },
-        2: {
-          1: "wall",
-        },
-        3: {
-        },
-        4: {
-          0: "wall",
-          2: "wall",
-        },
-      },
+      world: world,
       position: [0, 1],
       direction: "east",
       beeperCount: 0,
       levelName: "Level 04",
     };
 
-    const r = this.random(0, 1);
-    if (mode == null && r == 0 || mode == "fixed-a") {
-      this.state.world[2][0] = "wall";
-      this.state.world[2][2] = "beeper";
-    } else {
-      this.state.world[2][0] = "beeper";
-      this.state.world[2][2] = "wall";
-    }
-
-
-    this.render(this.state);
+    Karel.render(this.state);
   }
 
   public loadLevel05(mode?: "fixed-extreme" | "fixed"): void {
@@ -174,25 +174,24 @@ class Karel {
     } else if (mode == "fixed") {
       beeperCount = 4;
     } else {
-      beeperCount = this.random(2, 6);
+      beeperCount = Karel.random(2, 6);
+    }
+
+    let world: World = {};
+    for (let i = 0; i < beeperCount; i += 1) {
+      world = Karel.bySettingWorldElementAt(world, [2 + i, 0], "beeper");
     }
 
     this.state = {
       worldSize: [beeperCount + 4, 1],
-      world: {
-      },
+      world: world,
       position: [0, 0],
       direction: "east",
       beeperCount: 0,
       levelName: "Level 05",
     };
 
-    for (let i = 0; i < beeperCount; i += 1) {
-      this.state.world[2 + i] = this.state.world[2 + i] ?? {};
-      this.state.world[2 + i][0] = "beeper";
-    }
-
-    this.render(this.state);
+    Karel.render(this.state);
   }
 
   public loadLevel06(mode?: "extreme" | "fixed" | "fixed-extreme"): void {
@@ -206,17 +205,16 @@ class Karel {
       beeperCount = 4;
       levelWidth = 8;
     } else if (mode == "extreme") {
-      beeperCount = this.random(5, 20);
+      beeperCount = Karel.random(5, 20);
       levelWidth = 24;
     }  else {
-      beeperCount = this.random(1, 4);
+      beeperCount = Karel.random(1, 4);
       levelWidth = 8;
     }
 
     this.state = {
       worldSize: [levelWidth, 1],
       world: {
-
       },
       position: [0, 0],
       direction: "east",
@@ -224,7 +222,7 @@ class Karel {
       levelName: "Level 06",
     };
 
-    this.render(this.state);
+    Karel.render(this.state);
   }
 
   public loadLevel07(mode?: "fixed-extreme" | "fixed"): void {
@@ -238,83 +236,94 @@ class Karel {
       height = 5;
       width = 6;
     } else {
-      width = this.random(1, 6);
-      height = this.random(1, 5);
+      width = Karel.random(1, 6);
+      height = Karel.random(1, 5);
+    }
+
+    let world: World = {};
+    for(let x = 0; x < width; x += 1) {
+      for (let y = 0; y < height; y += 1) {
+        world = Karel.bySettingWorldElementAt(world, [x, y], "beeper");
+      }
     }
 
     this.state = {
       worldSize: [width, height],
-      world: {
-
-      },
+      world: world,
       position: [0, 0],
       direction: "east",
       beeperCount: 0,
       levelName: "Level 06",
     };
 
-    for(let x = 0; x < width; x += 1) {
-      this.state.world[x] = {};
-      for (let y = 0; y < height; y += 1) {
-        this.state.world[x][y] = "beeper";
-      }
-    }
-
-    this.render(this.state);
+    Karel.render(this.state);
   }
 
   public move(): void {
     this.detectInfiniteLoop();
 
-    let nextPosition = this.state.position;
+    let [x, y] = this.state.position;
     switch (this.state.direction) {
-      case "east": nextPosition[0] += 1; break;
-      case "south": nextPosition[1] += 1; break;
-      case "west": nextPosition[0] += -1; break;
-      case "north": nextPosition[1] += -1; break;
+      case "east": x += 1; break;
+      case "south": y += 1; break;
+      case "west": x += -1; break;
+      case "north": y += -1; break;
     }
 
     if (
-      nextPosition[0] < 0 ||
-      nextPosition[1] < 0 ||
-      nextPosition[1] >= this.state.worldSize[1] ||
-      nextPosition[0] >= this.state.worldSize[0]
+      x < 0 ||
+      y < 0 ||
+      y >= this.state.worldSize[1] ||
+      x >= this.state.worldSize[0]
     ) {
       throw new Error(`Unable to move outside of world.`);
     }
 
-    if (this.getWorldElementAt(this.state, nextPosition) == "wall") {
+    const nextPosition: Vector = [x, y];
+
+    if (Karel.getWorldElementAt(this.state.world, nextPosition) == "wall") {
       throw new Error("Unable to move into wall.")
     }
 
-    this.state.position = nextPosition;
-    this.render(this.state);
+    this.state = {
+      ...this.state,
+      position: nextPosition,
+    }
+    Karel.render(this.state);
   }
 
   public turnLeft(): void {
     this.detectInfiniteLoop();
 
+    let newDirection = this.state.direction;
     switch (this.state.direction) {
-      case "east": this.state.direction = "north"; break;
-      case "north": this.state.direction = "west"; break;
-      case "west": this.state.direction = "south"; break;
-      case "south": this.state.direction = "east"; break;
+      case "east": newDirection = "north"; break;
+      case "north": newDirection = "west"; break;
+      case "west": newDirection = "south"; break;
+      case "south": newDirection = "east"; break;
     }
 
-    this.render(this.state);
+    this.state = {
+      ...this.state,
+      direction: newDirection,
+    }
+    Karel.render(this.state);
   }
 
   public pickBeeper(): void {
     this.detectInfiniteLoop();
 
-    if (this.getWorldElementAt(this.state, this.state.position) !== "beeper") {
+    if (Karel.getWorldElementAt(this.state.world, this.state.position) !== "beeper") {
       throw new Error("Unable to pick beeper: There is no beeper on this tile.");
     }
 
-    this.state.world[this.state.position[0]][this.state.position[1]] = null;
-    this.state.beeperCount += 1;
+    this.state = {
+      ...this.state,
+      beeperCount: this.state.beeperCount + 1,
+      world: Karel.bySettingWorldElementAt(this.state.world, this.state.position, "none")
+    }
 
-    this.render(this.state);
+    Karel.render(this.state);
   }
 
   public putBeeper(): void {
@@ -323,17 +332,17 @@ class Karel {
     if (this.state.beeperCount == 0) {
       throw new Error("Unable to put beeper: There are no beepers in the beeper bag.")
     }
-    if (this.getWorldElementAt(this.state, this.state.position) !== "none") {
+    if (Karel.getWorldElementAt(this.state.world, this.state.position) !== "none") {
       throw new Error("Unable to put beeper: There is no room for a beeper on this tile.");
     }
 
-    if (this.state.world[this.state.position[0]] == null) {
-      this.state.world[this.state.position[0]] = {};
+    this.state = {
+      ...this.state,
+      beeperCount: this.state.beeperCount - 1,
+      world: Karel.bySettingWorldElementAt(this.state.world, this.state.position, "beeper")
     }
-    this.state.world[this.state.position[0]][this.state.position[1]] = "beeper";
-    this.state.beeperCount -= 1;
 
-    this.render(this.state);
+    Karel.render(this.state);
   }
 
   public isWallInfront(): boolean {
@@ -343,7 +352,7 @@ class Karel {
       if (this.state.position[0] == 0) {
         return true;
       }
-      if (this.getWorldElementAt(this.state, [this.state.position[0] - 1, this.state.position[1]]) == "wall") {
+      if (Karel.getWorldElementAt(this.state.world, [this.state.position[0] - 1, this.state.position[1]]) == "wall") {
         return true;
       }
     }
@@ -351,7 +360,7 @@ class Karel {
       if (this.state.position[1] == 0) {
         return true;
       }
-      if (this.getWorldElementAt(this.state, [this.state.position[0], this.state.position[1] - 1]) == "wall") {
+      if (Karel.getWorldElementAt(this.state.world, [this.state.position[0], this.state.position[1] - 1]) == "wall") {
         return true;
       }
     }
@@ -359,7 +368,7 @@ class Karel {
       if (this.state.position[0] == this.state.worldSize[0] - 1) {
         return true;
       }
-      if (this.getWorldElementAt(this.state, [this.state.position[0] + 1, this.state.position[1]]) == "wall") {
+      if (Karel.getWorldElementAt(this.state.world, [this.state.position[0] + 1, this.state.position[1]]) == "wall") {
         return true;
       }
     }
@@ -367,16 +376,18 @@ class Karel {
       if (this.state.position[1] == this.state.worldSize[1] - 1) {
         return true;
       }
-      if (this.getWorldElementAt(this.state, [this.state.position[0], this.state.position[1] + 1]) == "wall") {
+      if (Karel.getWorldElementAt(this.state.world, [this.state.position[0], this.state.position[1] + 1]) == "wall") {
         return true;
       }
     }
+
+    return false;
   }
 
   public isOnBeeper(): boolean {
     this.detectInfiniteLoop();
 
-    return this.getWorldElementAt(this.state, this.state.position) == "beeper";
+    return Karel.getWorldElementAt(this.state.world, this.state.position) == "beeper";
   }
 
   public getBeeperCount(): number {
@@ -392,11 +403,21 @@ class Karel {
     }
   }
 
-  private getWorldElementAt(state: State, position: Vector): WorldElement {
-    return (state.world[position[0]] ?? {})[position[1]] ?? "none";
+  private static getWorldElementAt(world: World, position: Vector): WorldElement {
+    return (world[position[0]] ?? {})[position[1]] ?? "none";
   }
 
-  private render(state: State): void {
+  private static bySettingWorldElementAt(world: World, position: Vector, element: WorldElement): World {
+    return {
+      ...world,
+      [position[0]]: {
+        ...world[position[0]],
+        [position[1]]: element,
+      }
+    }
+  }
+
+  private static render(state: State): void {
     const tileSize = 70;
 
     const bodies = document.getElementsByTagName("body");
@@ -450,7 +471,7 @@ class Karel {
       body.appendChild(yMarker);
 
       for (let x = 0; x < state.worldSize[0]; x += 1) {
-        const tile = this.getWorldElementAt(state, [x, y]);
+        const tile = Karel.getWorldElementAt(state.world, [x, y]);
 
         if (y == 0) {
           const xMarker = document.createElement("div");
@@ -531,7 +552,7 @@ class Karel {
     body.appendChild(beeperCounter)
   }
 
-  private random(min: number, max: number): number {
+  private static random(min: number, max: number): number {
     const minCeiled = Math.ceil(min);
     const maxFloored = Math.floor(max);
     return Math.floor(Math.random() * (maxFloored - minCeiled + 1)) + minCeiled;
