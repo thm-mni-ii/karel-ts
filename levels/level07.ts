@@ -2,8 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const karel = new Karel();
-  karel.loadLevel07();
-
+  karel.loadLevel07("a");
   while(true) {
     while (!karel.isWallInfront()) {
       karel.pickBeeper();

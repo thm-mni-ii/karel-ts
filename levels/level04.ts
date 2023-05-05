@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const karel = new Karel();
-  karel.loadLevel04();
+  karel.loadLevel04("b");
   karel.move();
   karel.turnLeft();
   karel.move();

@@ -2,7 +2,7 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   const karel = new Karel();
-  karel.loadLevel03();
+  karel.loadLevel03("a");
   karel.move();
   karel.move();
   if (karel.isOnBeeper()) {

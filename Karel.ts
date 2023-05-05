@@ -106,14 +106,19 @@ class Karel {
     Karel.render(this.state);
   }
 
-  public loadLevel03(mode?: "fixed"): void {
+  public loadLevel03(variant: "a" | "b" | "c"): void {
     let world: World = {};
 
-    if (Karel.random(0, 1) == 0 || mode == "fixed") {
-      world = Karel.bySettingWorldElementAt(world, [2, 1], "beeper");
-    }
-    if (Karel.random(0, 1) == 0 || mode == "fixed") {
-      world = Karel.bySettingWorldElementAt(world, [3, 1], "beeper");
+    switch (variant) {
+      case "a":
+        world = Karel.bySettingWorldElementAt(world, [2, 1], "beeper");
+        world = Karel.bySettingWorldElementAt(world, [3, 1], "beeper");
+        break;
+      case "b":
+        world = Karel.bySettingWorldElementAt(world, [2, 1], "beeper");
+        break;
+      case "c":
+        break;
     }
 
     this.state = {
@@ -128,7 +133,7 @@ class Karel {
     Karel.render(this.state);
   }
 
-  public loadLevel04(mode?: "fixed-a" | "fixed-b"): void {
+  public loadLevel04(variant: "a" | "b"): void {
     let world: World = {
       0: {
         0: "wall",
@@ -145,13 +150,15 @@ class Karel {
       },
     }
 
-    const r = Karel.random(0, 1);
-    if (mode == null && r == 0 || mode == "fixed-a") {
-      world = Karel.bySettingWorldElementAt(world, [2, 0], "wall");
-      world = Karel.bySettingWorldElementAt(world, [2, 2], "beeper");
-    } else {
-      world = Karel.bySettingWorldElementAt(world, [2, 0], "beeper");
-      world = Karel.bySettingWorldElementAt(world, [2, 2], "wall");
+    switch (variant) {
+      case "a":
+        world = Karel.bySettingWorldElementAt(world, [2, 0], "wall");
+        world = Karel.bySettingWorldElementAt(world, [2, 2], "beeper");
+        break;
+      case "b":
+        world = Karel.bySettingWorldElementAt(world, [2, 0], "beeper");
+        world = Karel.bySettingWorldElementAt(world, [2, 2], "wall");
+        break;
     }
 
     this.state = {
@@ -166,15 +173,16 @@ class Karel {
     Karel.render(this.state);
   }
 
-  public loadLevel05(mode?: "fixed-extreme" | "fixed"): void {
+  public loadLevel05(variant: "a" | "b"): void {
     let beeperCount: number;
 
-    if (mode == "fixed-extreme") {
-      beeperCount = 20;
-    } else if (mode == "fixed") {
-      beeperCount = 4;
-    } else {
-      beeperCount = Karel.random(2, 6);
+    switch (variant) {
+      case "a":
+        beeperCount = 4;
+        break;
+      case "b":
+        beeperCount = 20;
+        break;
     }
 
     let world: World = {};
@@ -194,22 +202,19 @@ class Karel {
     Karel.render(this.state);
   }
 
-  public loadLevel06(mode?: "extreme" | "fixed" | "fixed-extreme"): void {
+  public loadLevel06(variant: "a" | "b"): void {
     let beeperCount: number;
     let levelWidth: number;
 
-    if (mode == "fixed-extreme") {
-      beeperCount = 20;
-      levelWidth = 24;
-    } else if (mode == "fixed") {
-      beeperCount = 4;
-      levelWidth = 8;
-    } else if (mode == "extreme") {
-      beeperCount = Karel.random(5, 20);
-      levelWidth = 24;
-    }  else {
-      beeperCount = Karel.random(1, 4);
-      levelWidth = 8;
+    switch (variant) {
+      case "a":
+        beeperCount = 4;
+        levelWidth = 8;
+        break;
+      case "b":
+        beeperCount = 20;
+        levelWidth = 24;
+        break;
     }
 
     this.state = {
@@ -225,19 +230,19 @@ class Karel {
     Karel.render(this.state);
   }
 
-  public loadLevel07(mode?: "fixed-extreme" | "fixed"): void {
+  public loadLevel07(variant: "a" | "b"): void {
     let height: number;
     let width: number;
 
-    if (mode == "fixed-extreme") {
-      height = 20;
-      width = 20;
-    } else if (mode == "fixed") {
-      height = 5;
-      width = 6;
-    } else {
-      width = Karel.random(1, 6);
-      height = Karel.random(1, 5);
+    switch (variant) {
+      case "a":
+        height = 5;
+        width = 6;
+        break;
+      case "b":
+        height = 20;
+        width = 20;
+        break;
     }
 
     let world: World = {};
@@ -544,17 +549,11 @@ class Karel {
     body.appendChild(karel);
 
     const beeperCounter = document.createElement("div");
-    beeperCounter.innerHTML = `<b>${state.levelName}</b><br>Beepers: ${state.beeperCount}`;
+    beeperCounter.innerHTML = `<b>${state.levelName}</b><br>Beeper-Bag: ${state.beeperCount}`;
     beeperCounter.style.position = "absolute";
     beeperCounter.style.top = `${tileSize * (state.worldSize[1] + 2.1)}px`;
     beeperCounter.style.left = `${tileSize}px`;
     beeperCounter.style.width = `${state.worldSize[0] * tileSize}px`;
     body.appendChild(beeperCounter)
-  }
-
-  private static random(min: number, max: number): number {
-    const minCeiled = Math.ceil(min);
-    const maxFloored = Math.floor(max);
-    return Math.floor(Math.random() * (maxFloored - minCeiled + 1)) + minCeiled;
   }
 }
