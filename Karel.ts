@@ -186,7 +186,7 @@ class Karel {
     }
 
     let world: World = {};
-    for (let i = 0; i < beeperCount; i += 1) {
+    for (let i: number = 0; i < beeperCount; i += 1) {
       world = Karel.bySettingWorldElementAt(world, [2 + i, 0], "beeper");
     }
 
@@ -246,8 +246,8 @@ class Karel {
     }
 
     let world: World = {};
-    for(let x = 0; x < width; x += 1) {
-      for (let y = 0; y < height; y += 1) {
+    for(let x: number = 0; x < width; x += 1) {
+      for (let y: number = 0; y < height; y += 1) {
         world = Karel.bySettingWorldElementAt(world, [x, y], "beeper");
       }
     }
@@ -423,15 +423,15 @@ class Karel {
   }
 
   private static render(state: State): void {
-    const tileSize = 70;
+    const tileSize: number = 70;
 
-    const bodies = document.getElementsByTagName("body");
+    const bodies: HTMLCollection = document.getElementsByTagName("body");
     if (bodies.length == 0) {
       throw new Error("Unable to find the <body>-Element. Karel should only be used after 'DOMContentLoaded'.");
     }
-    const body = bodies[0];
+    const body: Element = bodies[0];
 
-    const worldDiv = document.createElement("div");
+    const worldDiv: HTMLDivElement = document.createElement("div");
     worldDiv.style.position = "absolute";
     worldDiv.style.top = `${tileSize}px`;
     worldDiv.style.left = `${tileSize}px`;
@@ -441,7 +441,7 @@ class Karel {
     worldDiv.style.boxSizing = "content-box";
     body.replaceChildren(worldDiv);
 
-    const yLetter = document.createElement("div");
+    const yLetter: HTMLDivElement = document.createElement("div");
     yLetter.style.position = "absolute";
     yLetter.style.width = `${tileSize}px`;
     yLetter.style.height = `${tileSize}px`;
@@ -452,7 +452,7 @@ class Karel {
     yLetter.innerHTML = `y`;
     body.appendChild(yLetter);
 
-    const xLetter = document.createElement("div");
+    const xLetter: HTMLDivElement = document.createElement("div");
     xLetter.style.position = "absolute";
     xLetter.style.width = `${tileSize}px`;
     xLetter.style.height = `${tileSize}px`;
@@ -463,8 +463,8 @@ class Karel {
     xLetter.innerHTML = `x`;
     body.appendChild(xLetter);
 
-    for (let y = 0; y < state.worldSize[1]; y += 1) {
-      const yMarker = document.createElement("div");
+    for (let y: number = 0; y < state.worldSize[1]; y += 1) {
+      const yMarker: HTMLDivElement = document.createElement("div");
       yMarker.style.position = "absolute";
       yMarker.style.width = `${tileSize}px`;
       yMarker.style.height = `${tileSize}px`;
@@ -475,11 +475,11 @@ class Karel {
       yMarker.innerHTML = `${y}`;
       body.appendChild(yMarker);
 
-      for (let x = 0; x < state.worldSize[0]; x += 1) {
-        const tile = Karel.getWorldElementAt(state.world, [x, y]);
+      for (let x: number = 0; x < state.worldSize[0]; x += 1) {
+        const tile: WorldElement = Karel.getWorldElementAt(state.world, [x, y]);
 
         if (y == 0) {
-          const xMarker = document.createElement("div");
+          const xMarker: HTMLDivElement = document.createElement("div");
           xMarker.style.position = "absolute";
           xMarker.style.width = `${tileSize}px`;
           xMarker.style.height = `${tileSize}px`;
@@ -492,7 +492,7 @@ class Karel {
         }
 
         if (tile == "beeper") {
-          const beeper = document.createElement("div");
+          const beeper: HTMLDivElement = document.createElement("div");
           beeper.style.position = "absolute";
           beeper.style.width = `${tileSize / 2}px`;
           beeper.style.height = `${tileSize / 2}px`;
@@ -504,7 +504,7 @@ class Karel {
           beeper.style.boxSizing = "border-box";
           body.appendChild(beeper);
         } else if (tile == "wall") {
-          const wall = document.createElement("div");
+          const wall: HTMLDivElement = document.createElement("div");
           wall.style.position = "absolute";
           wall.style.width = `${tileSize + 2}px`;
           wall.style.height = `${tileSize + 2}px`;
@@ -515,7 +515,7 @@ class Karel {
           wall.style.border = "2px solid black";
           body.appendChild(wall);
         } else {
-          const dot = document.createElement("div");
+          const dot: HTMLDivElement = document.createElement("div");
           dot.style.position = "absolute";
           dot.style.width = `4px`;
           dot.style.height = `4px`;
@@ -527,7 +527,7 @@ class Karel {
       }
     }
 
-    const karel = document.createElement("div");
+    const karel: HTMLDivElement = document.createElement("div");
     karel.innerHTML = "🤖<br>"
     switch (state.direction) {
       case "east": karel.innerHTML += "➡️"; break;
@@ -544,11 +544,9 @@ class Karel {
     karel.style.fontSize = `${tileSize / 2}px`;
     karel.style.lineHeight = "1";
     karel.style.textAlign = "center";
-    // karel.style.border = "2px solid black";
-    // karel.style.backgroundColor = "lightblue";
     body.appendChild(karel);
 
-    const beeperCounter = document.createElement("div");
+    const beeperCounter: HTMLDivElement = document.createElement("div");
     beeperCounter.innerHTML = `<b>${state.levelName}</b><br>Beeper-Bag: ${state.beeperCount}`;
     beeperCounter.style.position = "absolute";
     beeperCounter.style.top = `${tileSize * (state.worldSize[1] + 2.1)}px`;

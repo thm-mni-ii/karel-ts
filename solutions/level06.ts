@@ -1,7 +1,7 @@
 ///<reference path="../Karel.ts" />
 
 document.addEventListener("DOMContentLoaded", () => {
-  const karel = new Karel();
+  const karel: Karel = new Karel();
   karel.loadLevel06("a");
   karel.move();
   while (karel.getBeeperCount() > 0) {
