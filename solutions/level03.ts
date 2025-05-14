@@ -1,5 +1,3 @@
-///<reference path="../Karel.ts" />
-
 document.addEventListener("DOMContentLoaded", () => {
   const karel: Karel = new Karel();
   karel.loadLevel03("a");

@@ -34,7 +34,7 @@ class Karel {
 
   public loadLevel01(): void {
     this.state = {
-      worldSize: [5, 3],
+      worldSize: [5, 4],
       world: {
         2: { 2: "beeper" },
         3: { 2: "wall" },
