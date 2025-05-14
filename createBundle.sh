@@ -25,4 +25,5 @@ cp \
 cp src/script.ts "$FOLDER/karel/src"
 
 # Zippe den Ordner
-zip -r "${FOLDER}/karel.zip" "$FOLDER/karel"
+cd "${FOLDER}"
+zip -r "karel.zip" "karel"
